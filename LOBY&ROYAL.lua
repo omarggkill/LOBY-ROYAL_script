@@ -1,7 +1,7 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║        LOBY & ROYAL - GOD MODE V16         ║
-    ║   Fixed Aura Targeting & Correct Escape    ║
+    ║        LOBY & ROYAL - ABSOLUTE LOCK        ║
+    ║     Tool Stay in Hand While Stealing       ║
     ╚════════════════════════════════════════════╝
 ]]
 
@@ -9,41 +9,39 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local p = Players.LocalPlayer
 
--- مسح أي واجهة قديمة لضمان التحديث
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalFinal") then
-    game:GetService("CoreGui").LobyRoyalFinal:Destroy()
+-- مسح الواجهة القديمة
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalLock") then
+    game:GetService("CoreGui").LobyRoyalLock:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalFinal"
+sg.Name = "LobyRoyalLock"
 
--- تصميم الواجهة (نفس الشكل في صورك)
+-- التصميم
 local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 350, 0, 450)
-main.Position = UDim2.new(0.5, -175, 0.4, -225)
+main.Size = UDim2.new(0, 360, 0, 480)
+main.Position = UDim2.new(0.5, -180, 0.4, -240)
 main.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 20)
 
 local stroke = Instance.new("UIStroke", main)
-stroke.Color = Color3.fromRGB(255, 0, 0)
-stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(0, 255, 150)
+stroke.Thickness = 2
 
--- اسم السكربت LOBY&ROYAL
 local title = Instance.new("TextLabel", main)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0, 0, 0.02, 0)
-title.Text = "LOBY & ROYAL PREMIUM"
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "LOBY & ROYAL"
 title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 22
 title.BackgroundTransparency = 1
 
 local scroll = Instance.new("ScrollingFrame", main)
 scroll.Size = UDim2.new(0.9, 0, 0.7, 0)
-scroll.Position = UDim2.new(0.05, 0, 0.25, 0)
+scroll.Position = UDim2.new(0.05, 0, 0.2, 0)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 0
 
@@ -63,62 +61,77 @@ local function makeBtn(name, clr)
     return b
 end
 
--- الأزرار كما في الصورة
-local auraBtn = makeBtn("نظام السفاح: يحصد الجميع 🔥", Color3.fromRGB(0, 120, 0))
-local speedBtn = makeBtn("السرعة (200): إيقاف", Color3.fromRGB(30, 30, 30))
-local jumpBtn = makeBtn("القفز (250): إيقاف", Color3.fromRGB(30, 30, 30))
-local escapeBtn = makeBtn("هروب سريع للشارع 🏠", Color3.fromRGB(0, 100, 200))
+-- الأزرار
+local lockBtn = makeBtn("تثبيت السلاح (يبقى أثناء السرقة) 🔒", Color3.fromRGB(40, 40, 40))
+local aimBtn = makeBtn("تفعيل الإيم بوت والضرب 🎯", Color3.fromRGB(120, 0, 0))
+local speedBtn = makeBtn("سرعة لاعب (200)", Color3.fromRGB(30, 30, 30))
+local tpBtn = makeBtn("هروب سريع للشارع 🏠", Color3.fromRGB(0, 100, 200))
 
---- البرمجة (إصلاح الاستهداف والهروب) ---
-local auraOn, spdOn, jmpOn = false, false, false
+--- البرمجة (نظام التثبيت المطلق) ---
+local toolLocked, aimbotOn, spdOn = false, false, false
+local lockedTool = nil
 
--- وظيفة الضرب المركز (Targeted Hit)
-local function targetedAttack(targetChar, tool)
-    local targetPart = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
-    if tool and targetPart then
-        tool:Activate()
-        -- توجيه الهجوم مباشرة للخصم (Bypass)
-        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("Part")
-        if handle then
-            firetouchinterest(targetPart, handle, 0)
-            task.wait()
-            firetouchinterest(targetPart, handle, 1)
-        end
-    end
-end
-
-RunService.RenderStepped:Connect(function()
-    if auraOn then
-        local tool = p.Character:FindFirstChildOfClass("Tool") or p.Backpack:FindFirstChildOfClass("Tool")
-        if tool and tool.Name ~= "Brainrot" then
-            if tool.Parent == p.Backpack then tool.Parent = p.Character end
-            
-            for _, player in pairs(Players:GetPlayers()) do
-                if player ~= p and player.Character and player.Character:FindFirstChild("Humanoid") then
-                    local root = player.Character:FindFirstChild("HumanoidRootPart")
-                    if root then
-                        local distance = (p.Character.HumanoidRootPart.Position - root.Position).Magnitude
-                        if distance < 80 then -- مسافة ضرب مفتوحة وكبيرة (80 متر)
-                            targetedAttack(player.Character, tool)
-                        end
-                    end
-                end
+-- البحث عن أقرب لاعب
+local function getClosest()
+    local target, min-dist = nil, 100 -- نطاق 100 متر
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= p and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local d = (p.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+            if d < min-dist then
+                target = player
+                min-dist = d
             end
         end
     end
-    
-    -- السرعة والقفز
-    if p.Character and p.Character:FindFirstChild("Humanoid") then
-        if spdOn then p.Character.Humanoid.WalkSpeed = 200 end
-        if jmpOn then p.Character.Humanoid.JumpPower = 250 end
+    return target
+end
+
+RunService.Stepped:Connect(function()
+    -- 1. الميزة الأساسية: إجبار السلاح على البقاء في اليد دائماً
+    if toolLocked and lockedTool then
+        if p.Character and lockedTool.Parent ~= p.Character then
+            lockedTool.Parent = p.Character
+        end
+    end
+
+    -- 2. الضرب التلقائي والإيم بوت
+    if aimbotOn and lockedTool then
+        local targetPlayer = getClosest()
+        if targetPlayer then
+            lockedTool:Activate()
+            local handle = lockedTool:FindFirstChild("Handle") or lockedTool:FindFirstChildOfClass("BasePart")
+            if handle then
+                firetouchinterest(targetPlayer.Character.HumanoidRootPart, handle, 0)
+                firetouchinterest(targetPlayer.Character.HumanoidRootPart, handle, 1)
+            end
+        end
+    end
+
+    -- 3. السرعة
+    if p.Character and p.Character:FindFirstChild("Humanoid") and spdOn then
+        p.Character.Humanoid.WalkSpeed = 200
     end
 end)
 
 -- تشغيل الأزرار
-auraBtn.MouseButton1Click:Connect(function()
-    auraOn = not auraOn
-    auraBtn.Text = auraOn and "نظام السفاح: مفعل ✅" or "نظام السفاح: يحصد الجميع 🔥"
-    auraBtn.BackgroundColor3 = auraOn and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 120, 0)
+lockBtn.MouseButton1Click:Connect(function()
+    local current = p.Character:FindFirstChildOfClass("Tool")
+    if current then
+        lockedTool = current
+        toolLocked = not toolLocked
+        lockBtn.Text = toolLocked and "القفل مفعل: " .. lockedTool.Name .. " ✅" or "تثبيت السلاح (يبقى أثناء السرقة) 🔒"
+        lockBtn.BackgroundColor3 = toolLocked and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(40, 40, 40)
+    else
+        lockBtn.Text = "امسك السلاح في يدك أولاً! ❌"
+        task.wait(1)
+        lockBtn.Text = "تثبيت السلاح (يبقى أثناء السرقة) 🔒"
+    end
+end)
+
+aimBtn.MouseButton1Click:Connect(function()
+    aimbotOn = not aimbotOn
+    aimBtn.Text = aimbotOn and "الإيم بوت: يعمل 🔥" or "تفعيل الإيم بوت والضرب 🎯"
+    aimBtn.BackgroundColor3 = aimbotOn and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(120, 0, 0)
 end)
 
 speedBtn.MouseButton1Click:Connect(function()
@@ -126,14 +139,8 @@ speedBtn.MouseButton1Click:Connect(function()
     speedBtn.BackgroundColor3 = spdOn and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(30, 30, 30)
 end)
 
-jumpBtn.MouseButton1Click:Connect(function()
-    jmpOn = not jmpOn
-    jumpBtn.BackgroundColor3 = jmpOn and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(30, 30, 30)
-end)
-
-escapeBtn.MouseButton1Click:Connect(function()
-    -- إحداثيات مصححة للهروب بعيداً عن المنازل (منطقة التجميع الرئيسية)
+tpBtn.MouseButton1Click:Connect(function()
     if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-        p.Character.HumanoidRootPart.CFrame = CFrame.new(-40, 12, 135) 
+        p.Character.HumanoidRootPart.CFrame = CFrame.new(-40, 12, 135)
     end
 end)
