@@ -1,7 +1,7 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║        LOBY & ROYAL - ABSOLUTE LOCK        ║
-    ║     Tool Stay in Hand While Stealing       ║
+    ║        LOBY & ROYAL - ULTIMATE V19         ║
+    ║     Absolute Tool Lock + Precision Aim     ║
     ╚════════════════════════════════════════════╝
 ]]
 
@@ -9,15 +9,15 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local p = Players.LocalPlayer
 
--- مسح الواجهة القديمة
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalLock") then
-    game:GetService("CoreGui").LobyRoyalLock:Destroy()
+-- مسح الواجهات القديمة لضمان الظهور
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV19") then
+    game:GetService("CoreGui").LobyRoyalV19:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalLock"
+sg.Name = "LobyRoyalV19"
 
--- التصميم
+-- تصميم الواجهة الاحترافي
 local main = Instance.new("Frame", sg)
 main.Size = UDim2.new(0, 360, 0, 480)
 main.Position = UDim2.new(0.5, -180, 0.4, -240)
@@ -62,75 +62,67 @@ local function makeBtn(name, clr)
 end
 
 -- الأزرار
-local lockBtn = makeBtn("تثبيت السلاح (يبقى أثناء السرقة) 🔒", Color3.fromRGB(40, 40, 40))
-local aimBtn = makeBtn("تفعيل الإيم بوت والضرب 🎯", Color3.fromRGB(120, 0, 0))
+local lockBtn = makeBtn("قفل السلاح (لا يختفي عند السرقة) 🔒", Color3.fromRGB(40, 40, 40))
+local aimBtn = makeBtn("تفعيل الإيم بوت (ضرب دقيق) 🎯", Color3.fromRGB(120, 0, 0))
 local speedBtn = makeBtn("سرعة لاعب (200)", Color3.fromRGB(30, 30, 30))
 local tpBtn = makeBtn("هروب سريع للشارع 🏠", Color3.fromRGB(0, 100, 200))
 
---- البرمجة (نظام التثبيت المطلق) ---
+--- البرمجة المتطورة ---
 local toolLocked, aimbotOn, spdOn = false, false, false
 local lockedTool = nil
 
--- البحث عن أقرب لاعب
 local function getClosest()
-    local target, min-dist = nil, 100 -- نطاق 100 متر
+    local target, dist = nil, 100
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= p and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             local d = (p.Character.HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-            if d < min-dist then
+            if d < dist then
                 target = player
-                min-dist = d
+                dist = d
             end
         end
     end
     return target
 end
 
-RunService.Stepped:Connect(function()
-    -- 1. الميزة الأساسية: إجبار السلاح على البقاء في اليد دائماً
+RunService.Heartbeat:Connect(function()
+    -- تثبيت السلاح في اليد غصباً عن اللعبة
     if toolLocked and lockedTool then
-        if p.Character and lockedTool.Parent ~= p.Character then
+        if lockedTool.Parent ~= p.Character then
             lockedTool.Parent = p.Character
         end
     end
 
-    -- 2. الضرب التلقائي والإيم بوت
+    -- الضرب التلقائي
     if aimbotOn and lockedTool then
-        local targetPlayer = getClosest()
-        if targetPlayer then
+        local target = getClosest()
+        if target then
             lockedTool:Activate()
             local handle = lockedTool:FindFirstChild("Handle") or lockedTool:FindFirstChildOfClass("BasePart")
             if handle then
-                firetouchinterest(targetPlayer.Character.HumanoidRootPart, handle, 0)
-                firetouchinterest(targetPlayer.Character.HumanoidRootPart, handle, 1)
+                firetouchinterest(target.Character.HumanoidRootPart, handle, 0)
+                firetouchinterest(target.Character.HumanoidRootPart, handle, 1)
             end
         end
     end
 
-    -- 3. السرعة
-    if p.Character and p.Character:FindFirstChild("Humanoid") and spdOn then
+    if spdOn and p.Character and p.Character:FindFirstChild("Humanoid") then
         p.Character.Humanoid.WalkSpeed = 200
     end
 end)
 
--- تشغيل الأزرار
 lockBtn.MouseButton1Click:Connect(function()
     local current = p.Character:FindFirstChildOfClass("Tool")
     if current then
         lockedTool = current
         toolLocked = not toolLocked
-        lockBtn.Text = toolLocked and "القفل مفعل: " .. lockedTool.Name .. " ✅" or "تثبيت السلاح (يبقى أثناء السرقة) 🔒"
+        lockBtn.Text = toolLocked and "القفل مفعل: " .. lockedTool.Name or "قفل السلاح 🔒"
         lockBtn.BackgroundColor3 = toolLocked and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(40, 40, 40)
-    else
-        lockBtn.Text = "امسك السلاح في يدك أولاً! ❌"
-        task.wait(1)
-        lockBtn.Text = "تثبيت السلاح (يبقى أثناء السرقة) 🔒"
     end
 end)
 
 aimBtn.MouseButton1Click:Connect(function()
     aimbotOn = not aimbotOn
-    aimBtn.Text = aimbotOn and "الإيم بوت: يعمل 🔥" or "تفعيل الإيم بوت والضرب 🎯"
     aimBtn.BackgroundColor3 = aimbotOn and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(120, 0, 0)
 end)
 
