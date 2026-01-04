@@ -1,25 +1,26 @@
 --[[
-    LOBY & ROYAL - ULTIMATE SLAYER V14
-    Link: https://github.com/omarggkill/LOBY-ROYAL_script
-    Update: Smart Tool Detection + Ultra Fast Hit
+    ╔════════════════════════════════════════════╗
+    ║        LOBY & ROYAL - GOD MODE V16         ║
+    ║   Fixed Aura Targeting & Correct Escape    ║
+    ╚════════════════════════════════════════════╝
 ]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local p = Players.LocalPlayer
 
--- تنظيف الواجهات القديمة
-if game:GetService("CoreGui"):FindFirstChild("RoyalFinalHub") then
-    game:GetService("CoreGui").RoyalFinalHub:Destroy()
+-- مسح أي واجهة قديمة لضمان التحديث
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalFinal") then
+    game:GetService("CoreGui").LobyRoyalFinal:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "RoyalFinalHub"
+sg.Name = "LobyRoyalFinal"
 
--- التصميم (Dark Neon Red)
+-- تصميم الواجهة (نفس الشكل في صورك)
 local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 350, 0, 460)
-main.Position = UDim2.new(0.5, -175, 0.4, -230)
+main.Size = UDim2.new(0, 350, 0, 450)
+main.Position = UDim2.new(0.5, -175, 0.4, -225)
 main.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 main.BorderSizePixel = 0
 main.Active = true
@@ -30,16 +31,19 @@ local stroke = Instance.new("UIStroke", main)
 stroke.Color = Color3.fromRGB(255, 0, 0)
 stroke.Thickness = 3
 
--- شعار Lorns Links
-local logo = Instance.new("ImageLabel", main)
-logo.Size = UDim2.new(0, 200, 0, 110)
-logo.Position = UDim2.new(0.5, -100, 0.02, 0)
-logo.Image = "rbxassetid://16719572648"
-logo.BackgroundTransparency = 1
+-- اسم السكربت LOBY&ROYAL
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0.02, 0)
+title.Text = "LOBY & ROYAL PREMIUM"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.BackgroundTransparency = 1
 
 local scroll = Instance.new("ScrollingFrame", main)
-scroll.Size = UDim2.new(0.9, 0, 0.65, 0)
-scroll.Position = UDim2.new(0.05, 0, 0.32, 0)
+scroll.Size = UDim2.new(0.9, 0, 0.7, 0)
+scroll.Position = UDim2.new(0.05, 0, 0.25, 0)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 0
 
@@ -49,53 +53,53 @@ list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 local function makeBtn(name, clr)
     local b = Instance.new("TextButton", scroll)
-    b.Size = UDim2.new(0.95, 0, 0, 55)
+    b.Size = UDim2.new(0.95, 0, 0, 60)
     b.BackgroundColor3 = clr
     b.Text = name
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.GothamBold
-    b.TextSize = 13
+    b.TextSize = 14
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 12)
     return b
 end
 
--- الأزرار
-local auraBtn = makeBtn("تفعيل نظام السفاح (ضرب فتاك) 💀", Color3.fromRGB(120, 0, 0))
+-- الأزرار كما في الصورة
+local auraBtn = makeBtn("نظام السفاح: يحصد الجميع 🔥", Color3.fromRGB(0, 120, 0))
 local speedBtn = makeBtn("السرعة (200): إيقاف", Color3.fromRGB(30, 30, 30))
 local jumpBtn = makeBtn("القفز (250): إيقاف", Color3.fromRGB(30, 30, 30))
-local tpBtn = makeBtn("هروب سريع للشارع 🏠", Color3.fromRGB(0, 100, 200))
+local escapeBtn = makeBtn("هروب سريع للشارع 🏠", Color3.fromRGB(0, 100, 200))
 
---- البرمجة الخارقة (الضرب الذكي) ---
+--- البرمجة (إصلاح الاستهداف والهروب) ---
 local auraOn, spdOn, jmpOn = false, false, false
 
--- وظيفة الضرب التي تضمن التأثير
-local function dealDamage(target, tool)
-    if tool and target:FindFirstChild("HumanoidRootPart") then
-        tool:Activate() -- يضغط المضرب
-        -- محاكاة اللمس لضمان الضرب (Kill Aura Bypass)
+-- وظيفة الضرب المركز (Targeted Hit)
+local function targetedAttack(targetChar, tool)
+    local targetPart = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
+    if tool and targetPart then
+        tool:Activate()
+        -- توجيه الهجوم مباشرة للخصم (Bypass)
         local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("Part")
         if handle then
-            firetouchinterest(target.HumanoidRootPart, handle, 0)
-            firetouchinterest(target.HumanoidRootPart, handle, 1)
+            firetouchinterest(targetPart, handle, 0)
+            task.wait()
+            firetouchinterest(targetPart, handle, 1)
         end
     end
 end
 
-RunService.Heartbeat:Connect(function()
+RunService.RenderStepped:Connect(function()
     if auraOn then
-        -- التأكد من إمساك الأداة (لو في الشنطة يسحبها، ولو في اليد يضرب بها)
         local tool = p.Character:FindFirstChildOfClass("Tool") or p.Backpack:FindFirstChildOfClass("Tool")
-        
         if tool and tool.Name ~= "Brainrot" then
             if tool.Parent == p.Backpack then tool.Parent = p.Character end
             
             for _, player in pairs(Players:GetPlayers()) do
                 if player ~= p and player.Character and player.Character:FindFirstChild("Humanoid") then
-                    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        local distance = (p.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
-                        if distance < 60 then -- مسافة الأبادة (60 متر)
-                            dealDamage(player.Character, tool)
+                    local root = player.Character:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        local distance = (p.Character.HumanoidRootPart.Position - root.Position).Magnitude
+                        if distance < 80 then -- مسافة ضرب مفتوحة وكبيرة (80 متر)
+                            targetedAttack(player.Character, tool)
                         end
                     end
                 end
@@ -110,11 +114,11 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- تفعيل الأزرار
+-- تشغيل الأزرار
 auraBtn.MouseButton1Click:Connect(function()
     auraOn = not auraOn
-    auraBtn.Text = auraOn and "نظام السفاح: يحصد الجميع 🔥" or "تفعيل نظام السفاح (ضرب فتاك) 💀"
-    auraBtn.BackgroundColor3 = auraOn and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(120, 0, 0)
+    auraBtn.Text = auraOn and "نظام السفاح: مفعل ✅" or "نظام السفاح: يحصد الجميع 🔥"
+    auraBtn.BackgroundColor3 = auraOn and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 120, 0)
 end)
 
 speedBtn.MouseButton1Click:Connect(function()
@@ -127,8 +131,9 @@ jumpBtn.MouseButton1Click:Connect(function()
     jumpBtn.BackgroundColor3 = jmpOn and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(30, 30, 30)
 end)
 
-tpBtn.MouseButton1Click:Connect(function()
+escapeBtn.MouseButton1Click:Connect(function()
+    -- إحداثيات مصححة للهروب بعيداً عن المنازل (منطقة التجميع الرئيسية)
     if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-        p.Character.HumanoidRootPart.CFrame = CFrame.new(-38, 15, 128)
+        p.Character.HumanoidRootPart.CFrame = CFrame.new(-40, 12, 135) 
     end
 end)
