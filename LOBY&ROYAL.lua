@@ -1,12 +1,12 @@
 --[[
-    LOBY & ROYAL - THE FINAL GOD VERSION
-    Designed for: Steal a Brainrot
-    Features: Anti-Hit (Kenger Style), Outside TP, Pro UI
+    ROYAL GOD HUB V8 - FINAL EDITION
+    Target: Steal a Brainrot
+    Link: https://github.com/omarggkill/LOBY-ROYAL_script
 ]]
 
 local p = game:GetService("Players").LocalPlayer
 local sg = Instance.new("ScreenGui", p:WaitForChild("PlayerGui"))
-sg.Name = "RoyalGodHub_"..math.random(9999)
+sg.Name = "RoyalGodHub_Final"
 sg.ResetOnSpawn = false
 
 -- الإطار الرئيسي (تصميم ملكي فخم)
@@ -52,8 +52,8 @@ end
 -- الأزرار
 local antiHit = addBtn("نظام الشبح (إخفاء + نسخة ثابتة) 👑", Color3.fromRGB(80, 0, 160))
 local escape = addBtn("هروب سريع: خارج المنزل 🏃‍♂️", Color3.fromRGB(0, 100, 200))
-local speed = addBtn("سرعة البرق (Fix)", Color3.fromRGB(40, 40, 40))
-local jump = addBtn("قفزة العمالقة (Fix)", Color3.fromRGB(40, 40, 40))
+local speed = addBtn("سرعة البرق: إيقاف", Color3.fromRGB(40, 40, 40))
+local jump = addBtn("قفزة العمالقة: إيقاف", Color3.fromRGB(40, 40, 40))
 
 --- البرمجة المتقدمة ---
 local isGhost, clone, spdActive, jmpActive = false, nil, false, false
@@ -74,7 +74,7 @@ antiHit.MouseButton1Click:Connect(function()
             if v:IsA("BasePart") then v.Anchored = true end
         end
         char.Archivable = false
-        -- أنت ترى نفسك شبحاً للتحكم بينما الآخرون لا يرونك
+        -- أنت ترى نفسك شفافاً بينما الآخرون لا يرونك
         for _, v in pairs(char:GetDescendants()) do
             if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 0.5 end
         end
@@ -89,7 +89,7 @@ end)
 -- زر الهروب
 escape.MouseButton1Click:Connect(function()
     if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-        p.Character.HumanoidRootPart.CFrame = CFrame.new(-38, 15, 128) -- إحداثيات الساحة الخارجية
+        p.Character.HumanoidRootPart.CFrame = CFrame.new(-38, 15, 128)
     end
 end)
 
@@ -103,10 +103,12 @@ end)
 
 speed.MouseButton1Click:Connect(function()
     spdActive = not spdActive
+    speed.Text = spdActive and "سرعة البرق: 100" or "سرعة البرق: إيقاف"
     speed.BackgroundColor3 = spdActive and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(40, 40, 40)
 end)
 
 jump.MouseButton1Click:Connect(function()
     jmpActive = not jmpActive
+    jump.Text = jmpActive and "قفزة العمالقة: 150" or "قفزة العمالقة: إيقاف"
     jump.BackgroundColor3 = jmpActive and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(40, 40, 40)
 end)
