@@ -1,148 +1,176 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║      LOBY & ROYAL - GHOST MASTER V27       ║
-    ║    Ultimate Invisible & Anti-Target        ║
+    ║      LOBY & ROYAL - GHOST GOD V31          ║
+    ║    Invisible Phantom - God Aimbot 10B/10   ║
     ╚════════════════════════════════════════════╝
 ]]
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local p = Players.LocalPlayer
 
 -- تنظيف النسخ القديمة
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV27") then
-    game:GetService("CoreGui").LobyRoyalV27:Destroy()
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV31") then
+    game:GetService("CoreGui").LobyRoyalV31:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalV27"
+sg.Name = "LobyRoyalV31"
 
--- أيقونة التصغير
-local miniBtn = Instance.new("ImageButton", sg)
-miniBtn.Size = UDim2.new(0, 50, 0, 50)
-miniBtn.Position = UDim2.new(0, 5, 0.5, -25)
-miniBtn.Image = "rbxassetid://16719572648"
-miniBtn.Visible = false
-miniBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1, 0)
+-- نظام تحريك القوائم الاحترافي
+local function makeDraggable(frame, parent)
+    parent = parent or frame
+    local dragging, dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = parent.Position
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            parent.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    frame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+end
 
--- القائمة الرئيسية
+-- القائمة الرئيسية (تصميم فخم جداً)
 local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 380, 0, 420)
-main.Position = UDim2.new(0.5, -190, 0.4, -210)
-main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+main.Size = UDim2.new(0, 360, 0, 420)
+main.Position = UDim2.new(0.5, -180, 0.4, -210)
+main.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 local mainStroke = Instance.new("UIStroke", main)
-mainStroke.Color = Color3.fromRGB(0, 255, 200)
-mainStroke.Thickness = 2
+mainStroke.Color = Color3.fromRGB(255, 0, 50)
+mainStroke.Thickness = 3
 
-local top = Instance.new("Frame", main)
-top.Size = UDim2.new(1, 0, 0, 40)
-top.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Instance.new("UICorner", top).CornerRadius = UDim.new(0, 15)
+local topBar = Instance.new("Frame", main)
+topBar.Size = UDim2.new(1, 0, 0, 45)
+topBar.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 15)
+makeDraggable(topBar, main)
 
-local title = Instance.new("TextLabel", top)
-title.Size = UDim2.new(1, -40, 1, 0)
-title.Text = "LOBY & ROYAL - GHOST MODE"
+local title = Instance.new("TextLabel", topBar)
+title.Size = UDim2.new(1, 0, 1, 0)
+title.Text = "LOBY & ROYAL V31 [GOD MODE]"
 title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBold
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 18
 title.BackgroundTransparency = 1
 
-local minBtn = Instance.new("TextButton", top)
-minBtn.Size = UDim2.new(0, 30, 0, 30)
-minBtn.Position = UDim2.new(1, -35, 0.5, -15)
-minBtn.Text = "_"
-minBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-minBtn.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 5)
+-- أيقونة الجمجمة المتحركة
+local miniBtn = Instance.new("ImageButton", sg)
+miniBtn.Size = UDim2.new(0, 70, 0, 70)
+miniBtn.Position = UDim2.new(0, 15, 0.4, 0)
+miniBtn.Image = "rbxassetid://12543180419" -- أيقونة جمجمة مرعبة
+miniBtn.Visible = false
+miniBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1, 0)
+Instance.new("UIStroke", miniBtn).Color = Color3.new(1, 0, 0)
+makeDraggable(miniBtn)
 
 local scroll = Instance.new("ScrollingFrame", main)
 scroll.Size = UDim2.new(0.95, 0, 0.85, 0)
 scroll.Position = UDim2.new(0.025, 0, 0.12, 0)
 scroll.BackgroundTransparency = 1
 scroll.ScrollBarThickness = 0
-Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 10)
+local list = Instance.new("UIListLayout", scroll)
+list.Padding = UDim.new(0, 12)
+list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-local function createBtn(text, clr, callback)
+local function createToggle(name, callback)
     local b = Instance.new("TextButton", scroll)
-    b.Size = UDim2.new(0.9, 0, 0, 50)
-    b.BackgroundColor3 = clr
-    b.Text = text
+    b.Size = UDim2.new(0.95, 0, 0, 50)
+    b.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    b.Text = name .. " [OFF]"
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.GothamBold
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
-    b.MouseButton1Click:Connect(callback)
-    return b
+    
+    local state = false
+    b.MouseButton1Click:Connect(function()
+        state = not state
+        b.BackgroundColor3 = state and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(25, 25, 25)
+        b.Text = name .. (state and " [ON]" or " [OFF]")
+        callback(state)
+    end)
 end
 
---- البرمجة (نظام الشبح المطور) ---
-local selectedTool = nil
-local lockActive = false
-local aimbotOn = false
-local ghostActive = false
+--- البرمجة الخارقة (V31) ---
+local selectedTool, lockActive, ghostActive, aimbotOn = nil, false, false, false
+local walkSpeed, jumpPower = 16, 50
 
--- 1. تثبيت السلاح المطور
-createBtn("تحديد وتثبيت السلاح الحالي 🎯", Color3.fromRGB(50, 50, 50), function(self)
-    local tool = p.Character:FindFirstChildOfClass("Tool")
-    if tool then
-        selectedTool = tool
+-- 1. تثبيت السلاح (بما في ذلك الليزر أو المضرب)
+createToggle("قفل السلاح المختار 🔒", function(v)
+    if v then
+        selectedTool = p.Character:FindFirstChildOfClass("Tool")
         lockActive = true
-        self.Text = "مثبت: " .. tool.Name .. " ✅"
-        self.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-    end
-end)
-
--- 2. وضع الاختفاء (الشبح الحقيقي)
-local ghostBtn = createBtn("تفعيل وضع الشبح (غير مرئي) 👻", Color3.fromRGB(40, 40, 40), function()
-    ghostActive = not ghostActive
-    ghostBtn.Text = ghostActive and "وضع الشبح: فعال 🔥" or "تفعيل وضع الشبح (غير مرئي) 👻"
-    ghostBtn.BackgroundColor3 = ghostActive and Color3.fromRGB(0, 100, 200) or Color3.fromRGB(40, 40, 40)
-    
-    if ghostActive then
-        -- محاكاة الاختفاء عن طريق تحريك الأجزاء لمكان بعيد برمجياً
-        for _, part in pairs(p.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                part.Transparency = 1 -- شفافية كاملة
-                part.CanCollide = false
-            end
-        end
     else
+        lockActive = false
+    end
+end)
+
+-- 2. الضرب التلقائي (الذكاء الاصطناعي - مليار/10)
+createToggle("إبادة البشر (God Aimbot) ⚔️", function(v) aimbotOn = v end)
+
+-- 3. الاختفاء المطلق (Phantom Mode)
+createToggle("نمط الشبح المستنسخ (Invisible) 👻", function(v)
+    ghostActive = v
+    if p.Character then
         for _, part in pairs(p.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Transparency = 0
-                part.CanCollide = true
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = v and 1 or 0
+                if part.Name ~= "HumanoidRootPart" then
+                    part.CanCollide = not v
+                end
+            end
+            if part:IsA("TextLabel") or part:IsA("BillboardGui") then -- إخفاء الاسم
+                part.Enabled = not v
             end
         end
     end
 end)
 
--- 3. إيم بوت الضرب
-local aimBtn = createBtn("تشغيل الضرب التلقائي ⚔️", Color3.fromRGB(40, 40, 40), function()
-    aimbotOn = not aimbotOn
-    aimBtn.BackgroundColor3 = aimbotOn and Color3.fromRGB(150, 0, 0) or Color3.fromRGB(40, 40, 40)
-end)
+-- 4. السرعة الفائقة
+createToggle("سرعة السفاح ⚡", function(v) walkSpeed = v and 200 or 16 end)
 
--- 4. السرعة
-createBtn("تفعيل سرعة البرق (Safe) ⚡", Color3.fromRGB(40, 40, 40), function()
+-- 5. القفز العالي
+createToggle("نطة الأرنب 🚀", function(v) jumpPower = v and 180 or 50 end)
+
+-- تصغير وفتح
+local close = Instance.new("TextButton", topBar)
+close.Size = UDim2.new(0, 30, 0, 30)
+close.Position = UDim2.new(1, -40, 0.5, -15)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+close.MouseButton1Click:Connect(function() main.Visible = false miniBtn.Visible = true end)
+miniBtn.MouseButton1Click:Connect(function() main.Visible = true miniBtn.Visible = false end)
+
+-- الـ Loop الأساسي المحسن
+RunService.RenderStepped:Connect(function()
     if p.Character and p.Character:FindFirstChild("Humanoid") then
-        p.Character.Humanoid.WalkSpeed = 160
+        p.Character.Humanoid.WalkSpeed = walkSpeed
+        p.Character.Humanoid.JumpPower = jumpPower
     end
-end)
 
-RunService.Heartbeat:Connect(function()
-    -- تثبيت السلاح أثناء السرقة
     if lockActive and selectedTool then
-        if selectedTool.Parent ~= p.Character then
-            selectedTool.Parent = p.Character
-        end
+        selectedTool.Parent = p.Character
     end
 
-    -- الضرب التلقائي للأعداء القريبين
     if aimbotOn and selectedTool then
         for _, enemy in pairs(Players:GetPlayers()) do
             if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
                 local dist = (p.Character.HumanoidRootPart.Position - enemy.Character.HumanoidRootPart.Position).Magnitude
-                if dist < 80 then
+                if dist < 90 then
                     selectedTool:Activate()
                     local h = selectedTool:FindFirstChild("Handle") or selectedTool:FindFirstChildOfClass("BasePart")
                     if h then
@@ -154,11 +182,10 @@ RunService.Heartbeat:Connect(function()
         end
     end
     
-    -- منع السيرفر من كشف الاختفاء
+    -- تثبيت الاختفاء ومنع ظهور الـ Brainrot عليك
     if ghostActive and p.Character then
-        if p.Character:FindFirstChild("Head") then p.Character.Head.CanCollide = false end
+        if p.Character:FindFirstChild("Head") and p.Character.Head:FindFirstChildOfClass("BillboardGui") then
+            p.Character.Head:FindFirstChildOfClass("BillboardGui").Enabled = false
+        end
     end
 end)
-
-minBtn.MouseButton1Click:Connect(function() main.Visible = false miniBtn.Visible = true end)
-miniBtn.MouseButton1Click:Connect(function() main.Visible = true miniBtn.Visible = false end)
