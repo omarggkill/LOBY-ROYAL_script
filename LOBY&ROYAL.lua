@@ -1,114 +1,118 @@
 --[[
-    ROYAL GOD HUB V8 - FINAL EDITION
-    Target: Steal a Brainrot
-    Link: https://github.com/omarggkill/LOBY-ROYAL_script
+    LOBY & ROYAL - ULTIMATE KENGER COPY
+    Features: Real Invisible, Fixed TP, God Speed/Jump
 ]]
 
-local p = game:GetService("Players").LocalPlayer
-local sg = Instance.new("ScreenGui", p:WaitForChild("PlayerGui"))
-sg.Name = "RoyalGodHub_Final"
-sg.ResetOnSpawn = false
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local p = Players.LocalPlayer
+local char = p.Character or p.CharacterAdded:Wait()
 
--- الإطار الرئيسي (تصميم ملكي فخم)
-local frame = Instance.new("Frame", sg)
-frame.Size = UDim2.new(0, 320, 0, 460)
-frame.Position = UDim2.new(0.5, -160, 0.4, -230)
-frame.BackgroundColor3 = Color3.fromRGB(15, 0, 30)
-frame.Active = true
-frame.Draggable = true 
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 20)
-
--- شعار Lorns Links
-local img = Instance.new("ImageLabel", frame)
-img.Size = UDim2.new(0, 200, 0, 110)
-img.Position = UDim2.new(0.5, -100, 0.05, 0)
-img.Image = "rbxassetid://16719572648"
-img.BackgroundTransparency = 1
-
--- حاوية الأزرار
-local holder = Instance.new("ScrollingFrame", frame)
-holder.Size = UDim2.new(0.9, 0, 0.65, 0)
-holder.Position = UDim2.new(0.05, 0, 0.32, 0)
-holder.BackgroundTransparency = 1
-holder.CanvasSize = UDim2.new(0, 0, 1.5, 0)
-holder.ScrollBarThickness = 0
-
-local layout = Instance.new("UIListLayout", holder)
-layout.Padding = UDim.new(0, 10)
-layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-local function addBtn(name, color)
-    local btn = Instance.new("TextButton", holder)
-    btn.Size = UDim2.new(0.95, 0, 0, 50)
-    btn.BackgroundColor3 = color
-    btn.Text = name
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
-    return btn
+-- تنظيف النسخ القديمة
+if game:GetService("CoreGui"):FindFirstChild("RoyalUltimate") then
+    game:GetService("CoreGui").RoyalUltimate:Destroy()
 end
 
--- الأزرار
-local antiHit = addBtn("نظام الشبح (إخفاء + نسخة ثابتة) 👑", Color3.fromRGB(80, 0, 160))
-local escape = addBtn("هروب سريع: خارج المنزل 🏃‍♂️", Color3.fromRGB(0, 100, 200))
-local speed = addBtn("سرعة البرق: إيقاف", Color3.fromRGB(40, 40, 40))
-local jump = addBtn("قفزة العمالقة: إيقاف", Color3.fromRGB(40, 40, 40))
+local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+sg.Name = "RoyalUltimate"
 
---- البرمجة المتقدمة ---
-local isGhost, clone, spdActive, jmpActive = false, nil, false, false
+-- القائمة الرئيسية (تصميم الفيديو)
+local main = Instance.new("Frame", sg)
+main.Size = UDim2.new(0, 320, 0, 440)
+main.Position = UDim2.new(0.5, -160, 0.4, -220)
+main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 
--- نظام الشبح (Anti-Hit)
-antiHit.MouseButton1Click:Connect(function()
-    local char = p.Character
-    if not char then return end
-    isGhost = not isGhost
-    antiHit.Text = isGhost and "وضع الشبح: فعال ✅" or "نظام الشبح (إخفاء + نسخة ثابتة) 👑"
-    antiHit.BackgroundColor3 = isGhost and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(80, 0, 160)
+-- شعار Lorns Links
+local logo = Instance.new("ImageLabel", main)
+logo.Size = UDim2.new(0, 220, 0, 110)
+logo.Position = UDim2.new(0.5, -110, 0.05, 0)
+logo.Image = "rbxassetid://16719572648"
+logo.BackgroundTransparency = 1
 
-    if isGhost then
-        char.Archivable = true
-        clone = char:Clone()
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Size = UDim2.new(0.9, 0, 0.65, 0)
+scroll.Position = UDim2.new(0.05, 0, 0.32, 0)
+scroll.BackgroundTransparency = 1
+scroll.ScrollBarThickness = 0
+
+local list = Instance.new("UIListLayout", scroll)
+list.Padding = UDim.new(0, 10)
+list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local function addBtn(name, clr)
+    local b = Instance.new("TextButton", scroll)
+    b.Size = UDim2.new(0.95, 0, 0, 50)
+    b.BackgroundColor3 = clr
+    b.Text = name
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 13
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+    return b
+end
+
+-- أزرار الميزات (نفس الفيديو)
+local invBtn = addBtn("تفعيل نظام التخفي (Anti-Hit) 👻", Color3.fromRGB(150, 0, 0))
+local tpBtn = addBtn("هروب سريع: خارج المنزل 🏠", Color3.fromRGB(0, 100, 200))
+local speedBtn = addBtn("سرعة خارقة: إيقاف ⚡", Color3.fromRGB(30, 30, 30))
+local jumpBtn = addBtn("قفزة عالية: إيقاف 🚀", Color3.fromRGB(30, 30, 30))
+
+--- البرمجة ---
+local invActive, clone, speedOn, jumpOn = false, nil, false, false
+
+-- 1. نظام التخفي الحقيقي (Invisible)
+invBtn.MouseButton1Click:Connect(function()
+    invActive = not invActive
+    invBtn.Text = invActive and "التخفي: مفعل ✅" or "تفعيل نظام التخفي (Anti-Hit) 👻"
+    invBtn.BackgroundColor3 = invActive and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(150, 0, 0)
+    
+    if invActive then
+        p.Character.Archivable = true
+        clone = p.Character:Clone()
         clone.Parent = workspace
+        clone:MoveTo(p.Character.HumanoidRootPart.Position)
         for _, v in pairs(clone:GetDescendants()) do
             if v:IsA("BasePart") then v.Anchored = true end
         end
-        char.Archivable = false
-        -- أنت ترى نفسك شفافاً بينما الآخرون لا يرونك
-        for _, v in pairs(char:GetDescendants()) do
+        -- إخفاء الحقيقي عن السيرفر (Client Only Visibility)
+        for _, v in pairs(p.Character:GetDescendants()) do
             if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 0.5 end
         end
     else
-        if clone then clone:Destroy() clone = nil end
-        for _, v in pairs(char:GetDescendants()) do
+        if clone then clone:Destroy() end
+        for _, v in pairs(p.Character:GetDescendants()) do
             if v:IsA("BasePart") or v:IsA("Decal") then v.Transparency = 0 end
         end
     end
 end)
 
--- زر الهروب
-escape.MouseButton1Click:Connect(function()
+-- 2. زر الهروب (TP Outside)
+tpBtn.MouseButton1Click:Connect(function()
     if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
         p.Character.HumanoidRootPart.CFrame = CFrame.new(-38, 15, 128)
     end
 end)
 
--- السرعة والقفز المستمر
-game:GetService("RunService").Heartbeat:Connect(function()
+-- 3. السرعة والقفز المستمر (لا يتوقفان)
+speedBtn.MouseButton1Click:Connect(function()
+    speedOn = not speedOn
+    speedBtn.Text = speedOn and "سرعة خارقة: 100" or "سرعة خارقة: إيقاف ⚡"
+    speedBtn.BackgroundColor3 = speedOn and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(30, 30, 30)
+end)
+
+jumpBtn.MouseButton1Click:Connect(function()
+    jumpOn = not jumpOn
+    jumpBtn.Text = jumpOn and "قفزة عالية: 150" or "قفزة عالية: إيقاف 🚀"
+    jumpBtn.BackgroundColor3 = jumpOn and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(30, 30, 30)
+end)
+
+RunService.Heartbeat:Connect(function()
     if p.Character and p.Character:FindFirstChild("Humanoid") then
-        if spdActive then p.Character.Humanoid.WalkSpeed = 100 end
-        if jmpActive then p.Character.Humanoid.JumpPower = 150 end
+        if speedOn then p.Character.Humanoid.WalkSpeed = 100 end
+        if jumpOn then p.Character.Humanoid.JumpPower = 150 end
     end
-end)
-
-speed.MouseButton1Click:Connect(function()
-    spdActive = not spdActive
-    speed.Text = spdActive and "سرعة البرق: 100" or "سرعة البرق: إيقاف"
-    speed.BackgroundColor3 = spdActive and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(40, 40, 40)
-end)
-
-jump.MouseButton1Click:Connect(function()
-    jmpActive = not jmpActive
-    jump.Text = jmpActive and "قفزة العمالقة: 150" or "قفزة العمالقة: إيقاف"
-    jump.BackgroundColor3 = jmpActive and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(40, 40, 40)
 end)
