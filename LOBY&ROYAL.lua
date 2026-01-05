@@ -1,7 +1,7 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║      LOBY & ROYAL - RED LOCK V42           ║
-    ║    (استهداف أحمر حقيقي + ضرب سيرفر)        ║
+    ║      LOBY & ROYAL - RED ZONE V43           ║
+    ║    (تلوين الأعداء بالأحمر + إبادة فورية)    ║
     ╚════════════════════════════════════════════╝
 ]]
 
@@ -11,14 +11,14 @@ local UserInputService = game:GetService("UserInputService")
 local p = Players.LocalPlayer
 
 -- تنظيف النسخ القديمة
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV42") then
-    game:GetService("CoreGui").LobyRoyalV42:Destroy()
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV43") then
+    game:GetService("CoreGui").LobyRoyalV43:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalV42"
+sg.Name = "LobyRoyalV43"
 
--- نظام التحريك الاحترافي
+-- نظام التحريك (Drag)
 local function EnableDrag(frame, parent)
     parent = parent or frame
     local dragging, dragInput, dragStart, startPos
@@ -45,7 +45,7 @@ end
 local main = Instance.new("Frame", sg)
 main.Size = UDim2.new(0, 340, 0, 420)
 main.Position = UDim2.new(0.5, -170, 0.4, -210)
-main.BackgroundColor3 = Color3.fromRGB(10, 0, 0)
+main.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 local stroke = Instance.new("UIStroke", main)
 stroke.Color = Color3.fromRGB(255, 0, 0)
@@ -53,13 +53,13 @@ stroke.Thickness = 3
 
 local topBar = Instance.new("Frame", main)
 topBar.Size = UDim2.new(1, 0, 0, 45)
-topBar.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+topBar.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 15)
 EnableDrag(topBar, main)
 
 local title = Instance.new("TextLabel", topBar)
 title.Size = UDim2.new(1, 0, 1, 0)
-title.Text = "LOBY & ROYAL V42 [RED LOCK]"
+title.Text = "LOBY & ROYAL V43 [RED ZONE]"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBlack
 title.BackgroundTransparency = 1
@@ -74,7 +74,7 @@ Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 12)
 local function createToggle(name, callback)
     local b = Instance.new("TextButton", scroll)
     b.Size = UDim2.new(0.95, 0, 0, 50)
-    b.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     b.Text = name .. " [OFF]"
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.GothamBold
@@ -82,14 +82,14 @@ local function createToggle(name, callback)
     local state = false
     b.MouseButton1Click:Connect(function()
         state = not state
-        b.BackgroundColor3 = state and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(25, 25, 25)
+        b.BackgroundColor3 = state and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(35, 35, 35)
         b.Text = name .. (state and " [ON]" or " [OFF]")
         callback(state)
     end)
 end
 
--- [ الأوامر القوية ]
-local redAimOn, toolLockOn = false, false
+-- [ الأوامر ]
+local redZoneOn, toolLockOn = false, false
 local lockedToolName = ""
 
 createToggle("تثبيت السلاح الحالي 🔒", function(v)
@@ -100,13 +100,20 @@ createToggle("تثبيت السلاح الحالي 🔒", function(v)
     end
 end)
 
-createToggle("إيم بوت أحمر (Red Lock) 🎯", function(v)
-    redAimOn = v
+createToggle("منطقة الإبادة الحمراء (Red Zone) 🎯", function(v)
+    redZoneOn = v
+    if not v then
+        for _, pl in pairs(Players:GetPlayers()) do
+            if pl.Character and pl.Character:FindFirstChild("RedTarget") then
+                pl.Character.RedTarget:Destroy()
+            end
+        end
+    end
 end)
 
 createToggle("سرعة السفاح ⚡", function(v) p.Character.Humanoid.WalkSpeed = v and 180 or 16 end)
 
--- [ محرك الاستهداف والضرب الحقيقي ]
+-- [ القلب النابض للسكربت ]
 RunService.Heartbeat:Connect(function()
     local char = p.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -117,35 +124,44 @@ RunService.Heartbeat:Connect(function()
         if tool then tool.Parent = char end
     end
 
-    -- نظام Red Lock Aura
-    if redAimOn then
+    -- نظام Red Zone (التلوين والضرب)
+    if redZoneOn then
         local tool = char:FindFirstChildOfClass("Tool")
-        if tool then
-            tool:Activate()
-            
-            for _, enemy in pairs(Players:GetPlayers()) do
-                if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("Humanoid") and enemy.Character.Humanoid.Health > 0 then
-                    local enemyPart = enemy.Character:FindFirstChild("HumanoidRootPart")
-                    if enemyPart then
-                        local dist = (char.HumanoidRootPart.Position - enemyPart.Position).Magnitude
-                        
-                        if dist < 100 then -- نطاق الأورا
-                            -- 1. محاكاة "الهدف الأحمر" للسيرفر
-                            local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("BasePart")
-                            if handle then
-                                -- إجبار السيرفر على رؤية "اللمس" بين السلاح والعدو
-                                firetouchinterest(enemyPart, handle, 0)
-                                firetouchinterest(enemyPart, handle, 1)
-                                
-                                -- 2. إرسال إشارة الليزر الحقيقية (التي تظهر اللون الأحمر في الماب)
-                                local remote = tool:FindFirstChildOfClass("RemoteEvent") or tool:FindFirstChild("Remote") or tool:FindFirstChild("OnShoot")
-                                if remote then
-                                    -- نبعت للسيرفر إننا ضاربين في نص جسم العدو بالظبط
-                                    remote:FireServer(enemyPart.Position)
-                                    remote:FireServer(enemy.Character.Head.Position)
-                                end
+        
+        for _, enemy in pairs(Players:GetPlayers()) do
+            if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
+                local enemyChar = enemy.Character
+                local dist = (char.HumanoidRootPart.Position - enemyChar.HumanoidRootPart.Position).Magnitude
+                
+                if dist < 100 then
+                    -- 1. تلوين اللاعب بالأحمر (Highlight)
+                    if not enemyChar:FindFirstChild("RedTarget") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = "RedTarget"
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.FillTransparency = 0.4
+                        highlight.Parent = enemyChar
+                    end
+                    
+                    -- 2. الضرب التلقائي
+                    if tool then
+                        tool:Activate()
+                        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("BasePart")
+                        if handle then
+                            firetouchinterest(enemyChar.HumanoidRootPart, handle, 0)
+                            firetouchinterest(enemyChar.HumanoidRootPart, handle, 1)
+                            
+                            local remote = tool:FindFirstChildOfClass("RemoteEvent") or tool:FindFirstChild("Remote")
+                            if remote then
+                                remote:FireServer(enemyChar.HumanoidRootPart.Position)
                             end
                         end
+                    end
+                else
+                    -- حذف اللون إذا خرج من النطاق
+                    if enemyChar:FindFirstChild("RedTarget") then
+                        enemyChar.RedTarget:Destroy()
                     end
                 end
             end
