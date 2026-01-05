@@ -1,7 +1,7 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║      LOBY & ROYAL - RED ZONE V43           ║
-    ║    (تلوين الأعداء بالأحمر + إبادة فورية)    ║
+    ║      LOBY & ROYAL - MASTER PHANTOM V47     ║
+    ║    (Ghost Mode + Hard Lock + Red Aura)     ║
     ╚════════════════════════════════════════════╝
 ]]
 
@@ -11,14 +11,14 @@ local UserInputService = game:GetService("UserInputService")
 local p = Players.LocalPlayer
 
 -- تنظيف النسخ القديمة
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV43") then
-    game:GetService("CoreGui").LobyRoyalV43:Destroy()
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV47") then
+    game:GetService("CoreGui").LobyRoyalV47:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalV43"
+sg.Name = "LobyRoyalV47"
 
--- نظام التحريك (Drag)
+-- [ نظام التحريك ]
 local function EnableDrag(frame, parent)
     parent = parent or frame
     local dragging, dragInput, dragStart, startPos
@@ -41,58 +41,72 @@ local function EnableDrag(frame, parent)
     end)
 end
 
--- الواجهة
+-- [ الواجهة الرئيسية ]
 local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 340, 0, 420)
-main.Position = UDim2.new(0.5, -170, 0.4, -210)
-main.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
-Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
-local stroke = Instance.new("UIStroke", main)
-stroke.Color = Color3.fromRGB(255, 0, 0)
-stroke.Thickness = 3
+main.Size = UDim2.new(0, 350, 0, 460); main.Position = UDim2.new(0.5, -175, 0.4, -230)
+main.BackgroundColor3 = Color3.fromRGB(10, 10, 10); Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
+local stroke = Instance.new("UIStroke", main); stroke.Color = Color3.fromRGB(255, 0, 0); stroke.Thickness = 3
 
 local topBar = Instance.new("Frame", main)
-topBar.Size = UDim2.new(1, 0, 0, 45)
-topBar.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+topBar.Size = UDim2.new(1, 0, 0, 45); topBar.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 15)
 EnableDrag(topBar, main)
 
 local title = Instance.new("TextLabel", topBar)
-title.Size = UDim2.new(1, 0, 1, 0)
-title.Text = "LOBY & ROYAL V43 [RED ZONE]"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBlack
-title.BackgroundTransparency = 1
+title.Size = UDim2.new(1, 0, 1, 0); title.Text = "LOBY & ROYAL [PHANTOM V47]"; title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBlack; title.BackgroundTransparency = 1
 
 local scroll = Instance.new("ScrollingFrame", main)
-scroll.Size = UDim2.new(0.95, 0, 0.82, 0)
-scroll.Position = UDim2.new(0.025, 0, 0.15, 0)
-scroll.BackgroundTransparency = 1
-scroll.ScrollBarThickness = 0
-Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 12)
+scroll.Size = UDim2.new(0.95, 0, 0.85, 0); scroll.Position = UDim2.new(0.025, 0, 0.12, 0)
+scroll.BackgroundTransparency = 1; scroll.ScrollBarThickness = 0
+Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 10)
+
+-- [ الوظائف المدمجة ]
+local ghostOn, auraOn, toolLockOn = false, false, false
+local fakeChar = nil
+local lockedToolName = ""
 
 local function createToggle(name, callback)
     local b = Instance.new("TextButton", scroll)
-    b.Size = UDim2.new(0.95, 0, 0, 50)
-    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    b.Text = name .. " [OFF]"
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 12)
+    b.Size = UDim2.new(0.95, 0, 0, 45); b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.Text = name .. " [OFF]"; b.TextColor3 = Color3.new(1, 1, 1); b.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
     local state = false
     b.MouseButton1Click:Connect(function()
         state = not state
-        b.BackgroundColor3 = state and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(35, 35, 35)
+        b.BackgroundColor3 = state and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(30, 30, 30)
         b.Text = name .. (state and " [ON]" or " [OFF]")
         callback(state)
     end)
 end
 
--- [ الأوامر ]
-local redZoneOn, toolLockOn = false, false
-local lockedToolName = ""
+-- 1. نظام الشبح (Ghost Mode) - نسخة مخفية ونسخة تسرق
+createToggle("نمط الشبح (Ghost Mode) 👻", function(v)
+    ghostOn = v
+    local char = p.Character
+    if v then
+        char.Archivable = true
+        fakeChar = char:Clone()
+        fakeChar.Parent = workspace
+        fakeChar.HumanoidRootPart.Anchored = true
+        -- جعل الشخصية الحقيقية مخفية تماماً للناس
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = 1
+            end
+        end
+    else
+        if fakeChar then fakeChar:Destroy(); fakeChar = nil end
+        for _, part in pairs(p.Character:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = 0
+            end
+        end
+    end
+end)
 
-createToggle("تثبيت السلاح الحالي 🔒", function(v)
+-- 2. تثبيت السلاح (Hard Lock) - ميتشالش من إيدك أبداً
+createToggle("تثبيت السلاح (Hard Lock) 🔒", function(v)
     toolLockOn = v
     if v then
         local tool = p.Character:FindFirstChildOfClass("Tool") or p.Backpack:FindFirstChildOfClass("Tool")
@@ -100,78 +114,64 @@ createToggle("تثبيت السلاح الحالي 🔒", function(v)
     end
 end)
 
-createToggle("منطقة الإبادة الحمراء (Red Zone) 🎯", function(v)
-    redZoneOn = v
-    if not v then
-        for _, pl in pairs(Players:GetPlayers()) do
-            if pl.Character and pl.Character:FindFirstChild("RedTarget") then
-                pl.Character.RedTarget:Destroy()
-            end
-        end
-    end
+-- 3. هالة الإبادة الحمراء (Red Aura)
+createToggle("هالة الإبادة الحمراء 🔴", function(v)
+    auraOn = v
 end)
 
-createToggle("سرعة السفاح ⚡", function(v) p.Character.Humanoid.WalkSpeed = v and 180 or 16 end)
-
--- [ القلب النابض للسكربت ]
+-- [ حلقة التشغيل القوية ]
 RunService.Heartbeat:Connect(function()
     local char = p.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    if not char then return end
 
-    -- تثبيت السلاح
+    -- تثبيت السلاح (Force Parenting)
     if toolLockOn and lockedToolName ~= "" then
-        local tool = p.Backpack:FindFirstChild(lockedToolName)
-        if tool then tool.Parent = char end
+        local tool = p.Backpack:FindFirstChild(lockedToolName) or char:FindFirstChild(lockedToolName)
+        if tool and tool.Parent ~= char then
+            tool.Parent = char
+        end
     end
 
-    -- نظام Red Zone (التلوين والضرب)
-    if redZoneOn then
-        local tool = char:FindFirstChildOfClass("Tool")
-        
+    -- نظام الأورا والضرب وتلوين الأعداء
+    if auraOn then
+        local currentTool = char:FindFirstChildOfClass("Tool")
         for _, enemy in pairs(Players:GetPlayers()) do
             if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
                 local enemyChar = enemy.Character
                 local dist = (char.HumanoidRootPart.Position - enemyChar.HumanoidRootPart.Position).Magnitude
                 
                 if dist < 100 then
-                    -- 1. تلوين اللاعب بالأحمر (Highlight)
-                    if not enemyChar:FindFirstChild("RedTarget") then
-                        local highlight = Instance.new("Highlight")
-                        highlight.Name = "RedTarget"
-                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        highlight.FillTransparency = 0.4
-                        highlight.Parent = enemyChar
+                    -- تلوين العدو بالأحمر (Highlight)
+                    if not enemyChar:FindFirstChild("AuraTarget") then
+                        local hl = Instance.new("Highlight", enemyChar)
+                        hl.Name = "AuraTarget"
+                        hl.FillColor = Color3.fromRGB(255, 0, 0)
+                        hl.FillTransparency = 0.5
                     end
                     
-                    -- 2. الضرب التلقائي
-                    if tool then
-                        tool:Activate()
-                        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("BasePart")
+                    -- الضرب التلقائي (Remote + Touch)
+                    if currentTool then
+                        currentTool:Activate()
+                        local handle = currentTool:FindFirstChild("Handle") or currentTool:FindFirstChildOfClass("BasePart")
                         if handle then
                             firetouchinterest(enemyChar.HumanoidRootPart, handle, 0)
                             firetouchinterest(enemyChar.HumanoidRootPart, handle, 1)
-                            
-                            local remote = tool:FindFirstChildOfClass("RemoteEvent") or tool:FindFirstChild("Remote")
-                            if remote then
-                                remote:FireServer(enemyChar.HumanoidRootPart.Position)
-                            end
                         end
+                        -- إرسال ريموت الليزر
+                        local remote = currentTool:FindFirstChildOfClass("RemoteEvent")
+                        if remote then remote:FireServer(enemyChar.HumanoidRootPart.Position) end
                     end
                 else
-                    -- حذف اللون إذا خرج من النطاق
-                    if enemyChar:FindFirstChild("RedTarget") then
-                        enemyChar.RedTarget:Destroy()
-                    end
+                    if enemyChar:FindFirstChild("AuraTarget") then enemyChar.AuraTarget:Destroy() end
                 end
             end
         end
     end
 end)
 
--- أيقونة الجمجمة
+-- تصغير الواجهة (الجمجمة)
 local miniBtn = Instance.new("ImageButton", sg)
-miniBtn.Size = UDim2.new(0, 70, 0, 70); miniBtn.Position = UDim2.new(0, 20, 0.4, 0)
+miniBtn.Size = UDim2.new(0, 75, 0, 75); miniBtn.Position = UDim2.new(0, 10, 0.4, 0)
 miniBtn.Image = "rbxassetid://12543180419"; miniBtn.Visible = false
 miniBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20); Instance.new("UICorner", miniBtn).CornerRadius = UDim.new(1, 0)
 EnableDrag(miniBtn)
