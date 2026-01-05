@@ -1,7 +1,7 @@
 --[[
     ╔════════════════════════════════════════════╗
-    ║      LOBY & ROYAL - GHOST AURA V41         ║
-    ║    (ضرب تلقائي صاعق - بدون التفات - سريع)  ║
+    ║      LOBY & ROYAL - RED LOCK V42           ║
+    ║    (استهداف أحمر حقيقي + ضرب سيرفر)        ║
     ╚════════════════════════════════════════════╝
 ]]
 
@@ -11,14 +11,14 @@ local UserInputService = game:GetService("UserInputService")
 local p = Players.LocalPlayer
 
 -- تنظيف النسخ القديمة
-if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV41") then
-    game:GetService("CoreGui").LobyRoyalV41:Destroy()
+if game:GetService("CoreGui"):FindFirstChild("LobyRoyalV42") then
+    game:GetService("CoreGui").LobyRoyalV42:Destroy()
 end
 
 local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
-sg.Name = "LobyRoyalV41"
+sg.Name = "LobyRoyalV42"
 
--- نظام التحريك (Drag)
+-- نظام التحريك الاحترافي
 local function EnableDrag(frame, parent)
     parent = parent or frame
     local dragging, dragInput, dragStart, startPos
@@ -45,7 +45,7 @@ end
 local main = Instance.new("Frame", sg)
 main.Size = UDim2.new(0, 340, 0, 420)
 main.Position = UDim2.new(0.5, -170, 0.4, -210)
-main.BackgroundColor3 = Color3.fromRGB(15, 0, 0)
+main.BackgroundColor3 = Color3.fromRGB(10, 0, 0)
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 15)
 local stroke = Instance.new("UIStroke", main)
 stroke.Color = Color3.fromRGB(255, 0, 0)
@@ -53,13 +53,13 @@ stroke.Thickness = 3
 
 local topBar = Instance.new("Frame", main)
 topBar.Size = UDim2.new(1, 0, 0, 45)
-topBar.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+topBar.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
 Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 15)
 EnableDrag(topBar, main)
 
 local title = Instance.new("TextLabel", topBar)
 title.Size = UDim2.new(1, 0, 1, 0)
-title.Text = "LOBY & ROYAL V41 [GHOST AURA]"
+title.Text = "LOBY & ROYAL V42 [RED LOCK]"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBlack
 title.BackgroundTransparency = 1
@@ -74,7 +74,7 @@ Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 12)
 local function createToggle(name, callback)
     local b = Instance.new("TextButton", scroll)
     b.Size = UDim2.new(0.95, 0, 0, 50)
-    b.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    b.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     b.Text = name .. " [OFF]"
     b.TextColor3 = Color3.new(1, 1, 1)
     b.Font = Enum.Font.GothamBold
@@ -82,14 +82,14 @@ local function createToggle(name, callback)
     local state = false
     b.MouseButton1Click:Connect(function()
         state = not state
-        b.BackgroundColor3 = state and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(35, 35, 35)
+        b.BackgroundColor3 = state and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(25, 25, 25)
         b.Text = name .. (state and " [ON]" or " [OFF]")
         callback(state)
     end)
 end
 
--- [ الأوامر ]
-local ghostAuraOn, toolLockOn = false, false
+-- [ الأوامر القوية ]
+local redAimOn, toolLockOn = false, false
 local lockedToolName = ""
 
 createToggle("تثبيت السلاح الحالي 🔒", function(v)
@@ -100,48 +100,50 @@ createToggle("تثبيت السلاح الحالي 🔒", function(v)
     end
 end)
 
-createToggle("هالة الموت (Ghost Aura) ⚡", function(v)
-    ghostAuraOn = v
+createToggle("إيم بوت أحمر (Red Lock) 🎯", function(v)
+    redAimOn = v
 end)
 
 createToggle("سرعة السفاح ⚡", function(v) p.Character.Humanoid.WalkSpeed = v and 180 or 16 end)
 
--- [ محرك الضرب الصاعق ]
+-- [ محرك الاستهداف والضرب الحقيقي ]
 RunService.Heartbeat:Connect(function()
     local char = p.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
-    -- تثبيت السلاح في اليد
+    -- تثبيت السلاح
     if toolLockOn and lockedToolName ~= "" then
         local tool = p.Backpack:FindFirstChild(lockedToolName)
         if tool then tool.Parent = char end
     end
 
-    -- نظام هالة الموت (Ghost Aura)
-    if ghostAuraOn then
+    -- نظام Red Lock Aura
+    if redAimOn then
         local tool = char:FindFirstChildOfClass("Tool")
         if tool then
-            -- سبام كليك لتشغيل السلاح
             tool:Activate()
             
-            -- البحث عن الأهداف في محيط 100 متر
             for _, enemy in pairs(Players:GetPlayers()) do
-                if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") then
-                    local enemyRoot = enemy.Character.HumanoidRootPart
-                    local dist = (char.HumanoidRootPart.Position - enemyRoot.Position).Magnitude
-                    
-                    if dist < 100 then -- مسافة الضرب
-                        -- إرسال صدمة الضرر فوراً لمكان العدو بدون التفاف
-                        local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("BasePart")
-                        if handle then
-                            -- توجيه الضربة لمكان العدو برمجياً (Silent Hit)
-                            firetouchinterest(enemyRoot, handle, 0)
-                            firetouchinterest(enemyRoot, handle, 1)
-                            
-                            -- لو كان مسدس ليزر، نرسل إشارة الضرب لإحداثيات العدو
-                            local remote = tool:FindFirstChildOfClass("RemoteEvent") or tool:FindFirstChild("Remote")
-                            if remote then
-                                remote:FireServer(enemyRoot.Position)
+                if enemy ~= p and enemy.Character and enemy.Character:FindFirstChild("Humanoid") and enemy.Character.Humanoid.Health > 0 then
+                    local enemyPart = enemy.Character:FindFirstChild("HumanoidRootPart")
+                    if enemyPart then
+                        local dist = (char.HumanoidRootPart.Position - enemyPart.Position).Magnitude
+                        
+                        if dist < 100 then -- نطاق الأورا
+                            -- 1. محاكاة "الهدف الأحمر" للسيرفر
+                            local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("BasePart")
+                            if handle then
+                                -- إجبار السيرفر على رؤية "اللمس" بين السلاح والعدو
+                                firetouchinterest(enemyPart, handle, 0)
+                                firetouchinterest(enemyPart, handle, 1)
+                                
+                                -- 2. إرسال إشارة الليزر الحقيقية (التي تظهر اللون الأحمر في الماب)
+                                local remote = tool:FindFirstChildOfClass("RemoteEvent") or tool:FindFirstChild("Remote") or tool:FindFirstChild("OnShoot")
+                                if remote then
+                                    -- نبعت للسيرفر إننا ضاربين في نص جسم العدو بالظبط
+                                    remote:FireServer(enemyPart.Position)
+                                    remote:FireServer(enemy.Character.Head.Position)
+                                end
                             end
                         end
                     end
