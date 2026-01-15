@@ -1,115 +1,150 @@
 --[[
-    🚀 BRAINROT TSUNAMI SUPREME HUB - 2026 EDITION
-    CREATED FOR: ESCAPE TSUNAMI FOR BRAINROTS
-    FEATURES: TRIPLE HOME TP, INFINITE SPEED SLIDER, POSITION SAVER, MINIMIZE MODE
+    🚀 BRAINROT TSUNAMI SUPREME - FIXED VERSION 2026
+    هذا الكود مبرمج ليعمل مباشرة بدون مكتبات خارجية لضمان عدم التعطل
 ]]
 
-local Fluent = loadstring(game:HttpGet("github.com"))()
-local SaveManager = loadstring(game:HttpGet("raw.githubusercontent.com"))()
-local InterfaceManager = loadstring(game:HttpGet("raw.githubusercontent.com"))()
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local Title = Instance.new("TextLabel")
+local HomeTP = Instance.new("TextButton")
+local SpeedToggle = Instance.new("TextButton")
+local SpeedSlider = Instance.new("TextBox")
+local MinimizeBtn = Instance.new("TextButton")
+local SavePosBtn = Instance.new("TextButton")
+local LoadPosBtn = Instance.new("TextButton")
 
-local Window = Fluent:CreateWindow({
-    Title = "Brainrot Tsunami Hub 🌊",
-    SubTitle = "بواسطة AI Developer",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl -- زر التصغير لإخفاء السكربت تماماً
-})
+-- إعدادات الواجهة الرئيسية
+ScreenGui.Parent = game.CoreGui
+MainFrame.Name = "BrainrotHub"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 250, 0, 300)
+MainFrame.Active = true
+MainFrame.Draggable = true -- تحريك السكربت
 
-local Tabs = {
-    Main = Window:AddTab({ Title = "الرئيسية", Icon = "home" }),
-    Movement = Window:AddTab({ Title = "السرعة والقوة", Icon = "zap" }),
-    Teleport = Window:AddTab({ Title = "الانتقال الذكي", Icon = "map-pin" })
-}
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = MainFrame
 
--- [1] قسم الانتقال للبيت (Triple TP System)
-Tabs.Main:AddParagraph({
-    Title = "نظام النجاة الفوري",
-    Content = "هذا الزر ينقلك 3 مرات متتالية لضمان تخطي أي عوائق والوصول لبيتك بأمان."
-})
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "BRAINROT HUB 🌊"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.Parent = MainFrame
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 15)
 
-Tabs.Main:AddButton({
-    Title = "العودة للبيت (انتقال ثلاثي) 🏠",
-    Description = "ينقلك فوراً لمنطقة الأمان",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-        local homeCoords = CFrame.new(25, 10, 50) -- إحداثيات البيت (تتغير تلقائياً حسب الماب)
-        
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            -- انتقال ثلاثي لضمان كسر أي تعليق في الماب
-            for i = 1, 3 do
-                player.Character.HumanoidRootPart.CFrame = homeCoords
-                task.wait(0.05)
-            end
-            Fluent:Notify({ Title = "تم الانتقال", Content = "أنت الآن في أمان ببيتك!", Duration = 3 })
+-- 1. خيار الانتقال للبيت (Triple TP)
+HomeTP.Name = "HomeTP"
+HomeTP.Parent = MainFrame
+HomeTP.Size = UDim2.new(0.9, 0, 0, 45)
+HomeTP.Position = UDim2.new(0.05, 0, 0.18, 0)
+HomeTP.Text = "العودة للبيت (انتقال ثلاثي) 🏠"
+HomeTP.BackgroundColor3 = Color3.fromRGB(0, 140, 70)
+HomeTP.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", HomeTP)
+
+HomeTP.MouseButton1Click:Connect(function()
+    local lp = game.Players.LocalPlayer
+    if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+        for i = 1, 3 do
+            lp.Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0) -- إحداثيات البيت
+            task.wait(0.05)
         end
-    end
-})
-
--- [2] قسم السرعة الخارقة (Infinite Speed)
-local WalkSpeedValue = 16
-local SpeedEnabled = false
-
-Tabs.Movement:AddToggle("SpeedToggle", {Title = "تفعيل السرعة الخارقة", Default = false })
-:OnChanged(function(Value)
-    SpeedEnabled = Value
-end)
-
-Tabs.Movement:AddSlider("SpeedSlider", {
-    Title = "مستوى السرعة (لا نهائي)",
-    Description = "تحكم في سرعتك حرفياً بدون حدود",
-    Default = 16,
-    Min = 16,
-    Max = 1000,
-    Rounding = 0,
-    Callback = function(Value)
-        WalkSpeedValue = Value
-    end
-})
-
--- حلقة السرعة (تحديث مستمر لمنع الماب من تصفير سرعتك)
-task.spawn(function()
-    while true do
-        if SpeedEnabled then
-            pcall(function()
-                game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeedValue
-            end)
-        end
-        task.wait(0.1)
     end
 end)
 
--- [3] قسم تحديد الأماكن والانتقال الحر
-local SavedLocation = nil
+-- 2. هكر السرعة (Speed)
+SpeedSlider.Parent = MainFrame
+SpeedSlider.Size = UDim2.new(0.9, 0, 0, 35)
+SpeedSlider.Position = UDim2.new(0.05, 0, 0.38, 0)
+SpeedSlider.Text = "100" -- السرعة
+SpeedSlider.PlaceholderText = "اكتب السرعة هنا"
+SpeedSlider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SpeedSlider.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", SpeedSlider)
 
-Tabs.Teleport:AddButton({
-    Title = "تحديد موقعك الحالي 📍",
-    Callback = function()
-        SavedLocation = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-        Fluent:Notify({ Title = "نظام المواقع", Content = "تم حفظ إحداثيات هذا المكان!", Duration = 3 })
+local speedOn = false
+SpeedToggle.Parent = MainFrame
+SpeedToggle.Size = UDim2.new(0.9, 0, 0, 40)
+SpeedToggle.Position = UDim2.new(0.05, 0, 0.52, 0)
+SpeedToggle.Text = "تفعيل السرعة: OFF"
+SpeedToggle.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+SpeedToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", SpeedToggle)
+
+SpeedToggle.MouseButton1Click:Connect(function()
+    speedOn = not speedOn
+    if speedOn then
+        SpeedToggle.Text = "تفعيل السرعة: ON"
+        SpeedToggle.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+    else
+        SpeedToggle.Text = "تفعيل السرعة: OFF"
+        SpeedToggle.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
     end
-})
+end)
 
-Tabs.Teleport:AddButton({
-    Title = "انتقال فوري للمكان المحدد 🚀",
-    Callback = function()
-        if SavedLocation then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = SavedLocation
-        else
-            Fluent:Notify({ Title = "خطأ", Content = "لم تقم بتحديد مكان أولاً!", Duration = 3 })
+-- 3. تحديد مكان والانتقال له
+local savedCFrame = nil
+SavePosBtn.Parent = MainFrame
+SavePosBtn.Size = UDim2.new(0.43, 0, 0, 35)
+SavePosBtn.Position = UDim2.new(0.05, 0, 0.70, 0)
+SavePosBtn.Text = "حفظ الموقع 📍"
+SavePosBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SavePosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", SavePosBtn)
+
+LoadPosBtn.Parent = MainFrame
+LoadPosBtn.Size = UDim2.new(0.43, 0, 0, 35)
+LoadPosBtn.Position = UDim2.new(0.52, 0, 0.70, 0)
+LoadPosBtn.Text = "انتقال للموقع 🚀"
+LoadPosBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+LoadPosBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", LoadPosBtn)
+
+SavePosBtn.MouseButton1Click:Connect(function()
+    savedCFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end)
+
+LoadPosBtn.MouseButton1Click:Connect(function()
+    if savedCFrame then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedCFrame
+    end
+end)
+
+-- 4. ميزة التصغير (Minimize)
+local isMini = false
+MinimizeBtn.Parent = MainFrame
+MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+MinimizeBtn.Position = UDim2.new(0.85, 0, 0.02, 0)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeBtn.BackgroundTransparency = 1
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    isMini = not isMini
+    if isMini then
+        MainFrame:TweenSize(UDim2.new(0, 250, 0, 40), "Out", "Quad", 0.3)
+        for _, v in pairs(MainFrame:GetChildren()) do
+            if v ~= Title and v ~= MinimizeBtn and not v:IsA("UICorner") then v.Visible = false end
         end
+        MinimizeBtn.Text = "+"
+    else
+        MainFrame:TweenSize(UDim2.new(0, 250, 0, 300), "Out", "Quad", 0.3)
+        for _, v in pairs(MainFrame:GetChildren()) do
+            if v ~= Title and v ~= MinimizeBtn and not v:IsA("UICorner") then v.Visible = true end
+        end
+        MinimizeBtn.Text = "-"
     end
-})
+end)
 
--- [4] ميزة التصغير الذكي (Minimized UI)
--- الواجهة تدعم التصغير من الزر العلوي وتختفي تماماً بضغط Right Control
--- السكربت سيبقى شغالاً في الخلفية (السرعة ستظل فعالة)
-
-Window:SelectTab(1)
-Fluent:Notify({
-    Title = "Brainrot Hub",
-    Content = "تم تشغيل السكربت بأفضل قوة له!",
-    Duration = 5
-})
+-- Loop لتشغيل السرعة
+game:GetService("RunService").RenderStepped:Connect(function()
+    if speedOn then
+        local s = tonumber(SpeedSlider.Text) or 16
+        pcall(function()
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+        end)
+    end
+end)
